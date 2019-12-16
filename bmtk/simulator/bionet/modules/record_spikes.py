@@ -83,20 +83,30 @@ class SpikesMod(SimulatorMod):
         if ioutils.bmtk_world_comm.comm.rank == 0:
             print('Debug: starting to finalize spikes')
             sys.stdout.flush()
-        start_time = time.time()
         self._spike_writer.flush()
         pc.barrier()
-        if ioutils.bmtk_world_comm.comm.rank == 0:
-            print('Debug: flushing spike_writer took %.2f s' % (time.time() - start_time))
-            sys.stdout.flush()
 
         if self._save_csv:
+            start_time = time.time()
+            if ioutils.bmtk_world_comm.comm.rank == 0:
+                print('Debug: starting to write to csv')
+                sys.stdout.flush()
             self._spike_writer.to_csv(self._csv_fname, sort_order=self._sort_order)
             pc.barrier()
+            if ioutils.bmtk_world_comm.comm.rank == 0:
+                print('Debug: writing to csv took %.2f s' % (time.time() - start_time))
+                sys.stdout.flush()
 
         if self._save_h5:
+            start_time = time.time()
+            if ioutils.bmtk_world_comm.comm.rank == 0:
+                print('Debug: starting to write to sonata')
+                sys.stdout.flush()
             self._spike_writer.to_sonata(self._h5_fname, sort_order=self._sort_order, mode=self._mode)
             pc.barrier()
+            if ioutils.bmtk_world_comm.comm.rank == 0:
+                print('Debug: writing to sonata took %.2f s' % (time.time() - start_time))
+                sys.stdout.flush()
 
         if self._save_nwb:
             self._spike_writer.to_nwb(self._nwb_fname, sort_order=self._sort_order)
