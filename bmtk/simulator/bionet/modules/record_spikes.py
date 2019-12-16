@@ -78,8 +78,17 @@ class SpikesMod(SimulatorMod):
         sim.set_spikes_recording()  # reset recording vector
 
     def finalize(self, sim):
+        from bmtk.utils.io import ioutils
+        import time, sys
+        if ioutils.bmtk_world_comm.comm.rank == 0:
+            print('Debug: starting to finalize spikes')
+            sys.stdout.flush()
+        start_time = time.time()
         self._spike_writer.flush()
         pc.barrier()
+        if ioutils.bmtk_world_comm.comm.rank == 0:
+            print('Debug: flushing spike_writer took %.2f s' % (time.time() - start_time))
+            sys.stdout.flush()
 
         if self._save_csv:
             self._spike_writer.to_csv(self._csv_fname, sort_order=self._sort_order)
