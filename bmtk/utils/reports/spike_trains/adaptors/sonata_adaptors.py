@@ -28,6 +28,11 @@ sorting_attrs = {
 
 def write_sonata(path, spiketrain_reader, mode='a', sort_order=SortOrder.none, units='ms',
                  population_renames=None, **kwargs):
+    from bmtk.utils.io import ioutils
+    import time, sys
+    if ioutils.bmtk_world_comm.comm.rank == 0:
+        print('Debug: starting to write to sonata')
+        sys.stdout.flush()
     path_dir = os.path.dirname(path)
     if path_dir and not os.path.exists(path_dir):
         os.makedirs(path_dir)
@@ -40,6 +45,7 @@ def write_sonata(path, spiketrain_reader, mode='a', sort_order=SortOrder.none, u
         spikes_root = h5.create_group('/spikes')
         population_renames = population_renames or {}
         for pop_name in spiketrain_reader.populations:
+            start_time = time.time()
             n_spikes = spiketrain_reader.n_spikes(pop_name)
             if n_spikes <= 0:
                 continue
@@ -54,6 +60,9 @@ def write_sonata(path, spiketrain_reader, mode='a', sort_order=SortOrder.none, u
             for i, spk in enumerate(spiketrain_reader.spikes(populations=pop_name, sort_order=sort_order)):
                 timestamps_ds[i] = spk[0]*conv_factor
                 node_ids_ds[i] = spk[2]
+            if ioutils.bmtk_world_comm.comm.rank == 0:
+                print('Debug: writing population: %s to sonata took %.2f s' % (time.time() - start_time))
+                sys.stdout.flush()
 
 
 def load_sonata_file(path, version=None, **kwargs):
