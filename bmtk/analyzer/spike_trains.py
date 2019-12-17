@@ -51,9 +51,9 @@ def spike_statistics(spikes_file, simulation=None, simulation_time=None, groupby
             d['isi'] = np.mean(np.diff(vals))
         else:
             d['isi'] = 0.0
-    
+
         d['count'] = len(vals)
-    
+
         return pd.Series(d, index=['count', 'isi'])
 
     spike_counts_df = spike_trains.to_dataframe().groupby(['population', 'node_ids']).apply(calc_stats)
