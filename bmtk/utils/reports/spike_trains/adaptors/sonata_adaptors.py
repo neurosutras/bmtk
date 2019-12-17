@@ -61,7 +61,7 @@ def write_sonata(path, spiketrain_reader, mode='a', sort_order=SortOrder.none, u
                 timestamps_ds[i] = spk[0]*conv_factor
                 node_ids_ds[i] = spk[2]
             if ioutils.bmtk_world_comm.comm.rank == 0:
-                print('Debug: writing population: %s to sonata took %.2f s' % (time.time() - start_time))
+                print('Debug: writing population: %s to sonata took %.2f s' % (pop_name, time.time() - start_time))
                 sys.stdout.flush()
 
 
